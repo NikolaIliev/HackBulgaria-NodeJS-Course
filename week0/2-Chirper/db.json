@@ -1,0 +1,11 @@
+{
+	"chirps": [
+		{
+			"userId": 12,
+			"chirpId": 48,
+			"chirpText": "asdad",
+			"chirpTime": "10-10-2014 12:54"
+		}
+	],
+	"users": []
+}
