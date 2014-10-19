@@ -1,0 +1,30 @@
+[
+    {
+        "subscriberId": 1,
+        "email": "node.js.mail.testing@gmail.com",
+        "keywords": [
+            "the",
+            "a",
+            "of"
+        ],
+        "type": [
+            "comment"
+        ],
+        "verificationId": "EBUAkcsuqC3DtLuK",
+        "verified": true
+    },
+    {
+        "subscriberId": 2,
+        "email": "node.js.mail.testing@gmail.com",
+        "keywords": [
+            "the",
+            "a",
+            "in"
+        ],
+        "type": [
+            "story"
+        ],
+        "verificationId": "BpmIX6wiT9IT7mF7",
+        "verified": true
+    }
+]
