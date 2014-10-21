@@ -3,6 +3,7 @@ var express = require ('express'),
 	smtpTransport = require('nodemailer-smtp-transport'),
 	bodyParser = require('body-parser'),
 	localStorage = require('node-persist'),
+	utils = require("./utils"),
 	app = express(),
 	transporter = nodemailer.createTransport(smtpTransport({
 		host: "smtp.googlemail.com",
@@ -17,40 +18,14 @@ var express = require ('express'),
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-localStorage.initSync({
-	dir: "../../../persist",
-	stringify: function (obj) {
-		return JSON.stringify(obj, null, 4);
-	}
-});
+utils.initStorage(localStorage);
 
-function getArticleById(articles, id) {
-	return articles.filter(function (article) {
-		return article.id === id;
-	})[0];
-}
 
-function isMatchingArticle(article, subscriber) {
-	return subscriber.keywords.some(function (keyword) {
-		return article.title && (subscriber.type.indexOf(article.type)) >= 0 &&  article.title.split(" ").some(function (titleWord) {
-			return titleWord.toLowerCase() === keyword.toLowerCase();
-		})
-	})
-}
-
-function sendEmail(subscriber, text) {
-	var mailOptions = {
-			from: 'node.js.mail.testing@gmail.com', // sender address
-			to: subscriber.email, // list of receivers
-			subject: 'Your new batch of articles!', // Subject line
-			html: text // plaintext body
-	};
-	transporter.sendMail(mailOptions, function(error, info){
-			if(error){
-					console.log(error);
-			}else{
-					console.log('Message sent: ' + info.response);
-			}
+function sendSubscriptionEmail(subscriber, text) {
+	utils.sendEmail({
+		email: subscriber.email,
+		subject: "Your new batch of articles!",
+		text: text
 	});
 }
 
@@ -60,7 +35,7 @@ function parseComments(allArticles, newArticles) {
 		if (article.type === "comment") {
 			commentStory = article;
 			while (commentStory.type !== "story") {
-				commentStory = getArticleById(allArticles, commentStory.parent);
+				commentStory = utils.getById(allArticles, commentStory.parent);
 			}
 			article.url = commentStory.url;
 			article.title = commentStory.title;
@@ -79,16 +54,12 @@ function buildEmailText(article, articles) {
 }
 
 app.post('/newArticles', function (req, res) {
-	localStorage.initSync({
-		dir: "../../../persist",
-		stringify: function (obj) {
-			return JSON.stringify(obj, null, 4);
-		}
-	});
-	var subscribers = localStorage.getItem("subscribers.json"),
-			articlesDB = localStorage.getItem("articles.json");
-	var	newArticles = articlesDB.data.filter(function (article) {
-		debugger;
+	var subscribers, articlesDB, newArticles;
+
+	utils.initStorage(localStorage);
+	ubscribers = localStorage.getItem("subscribers.json"),
+	articlesDB = localStorage.getItem("articles.json");
+	newArticles = articlesDB.data.filter(function (article) {
 		if (!article.sent && article.purpose === "subscription") {
 			article.sent = true;
 			return true;
@@ -96,24 +67,23 @@ app.post('/newArticles', function (req, res) {
 		return false;
 		});
 
-	debugger;
-
 	parseComments(articlesDB.data, newArticles);
 
 	subscribers.forEach(function (subscriber) {
 		var currentArticles = [],
 			emailText = "Hello! Your subscription is: " + subscriber.keywords.join(" ");
 		newArticles.forEach(function (article) {
-			if (isMatchingArticle(article, subscriber)) {
+			if (utils.isMatchingArticle(article, subscriber)) {
 				currentArticles.push(article);
 			}
 		});
+
 		console.log("NEW ARTICLES: ", newArticles);
 			if (currentArticles.length > 0) {
 				currentArticles.forEach(function (article) {
 				emailText += buildEmailText(article, articlesDB.data);
 			});
-			sendEmail(subscriber, emailText);
+			sendSubscriptionEmail(subscriber, emailText);
 		}
 
 		localStorage.setItem("articles.json", articlesDB);
@@ -122,6 +92,6 @@ app.post('/newArticles', function (req, res) {
 });
 
 
-app.listen(8010);
+app.listen(3000);
 
 

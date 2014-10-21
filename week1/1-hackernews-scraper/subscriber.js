@@ -38,20 +38,13 @@ function validSubscription(data) {
 }
 
 function sendVerificationEmail(subscriber) {
-    var verificationLink = "http://localhost:8000/verify/" + encodeURIComponent(subscriber.email) + "?verificationId=" + subscriber.verificationId,
-        mailOptions = {
-            from: 'node.js.mail.testing@gmail.com', // sender address
-            to: subscriber.email, // list of receivers
-            subject: 'Please verify your subscription', // Subject line
-            html: "You subscribed for hacker news articles! Click the link below to verify your subscription or you won't receive any articles."
-                + "If you did not subscribe to our service, feel free to ignore this e-mail!<hr><b>Verification link:</b><a href='" + verificationLink + "'>Click here</a>" // plaintext body
-        };
-    transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            console.log(error);
-        } else {
-            console.log('Message sent: ' + info.response);
-        }
+    var verificationLink = "http://localhost:8000/verify/" + encodeURIComponent(subscriber.email) + "?verificationId=" + subscriber.verificationId;
+
+    utils.sendEmail({
+        email: subscriber.email,
+        subject: "Please verify your subscription",
+        text: "You subscribed for hacker news articles! Click the link below to verify your subscription or you won't receive any articles."
+                + "If you did not subscribe to our service, feel free to ignore this e-mail!<hr><b>Verification link:</b><a href='" + verificationLink + "'>Click here</a>"
     });
 }
 

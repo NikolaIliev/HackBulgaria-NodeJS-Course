@@ -4,9 +4,14 @@ var http = require('http'),
   routing = {
     "/all_chirps": getAllChirps,
     "/register": registerUser
+  },
+  data = {
+    users: [],
+    chirps: []
   };
 
 http.createServer(function (req, res) {
+  console.log(req);
   routing[req.url](function (err, data) {
     if (err) {
     } else {
@@ -18,12 +23,9 @@ http.createServer(function (req, res) {
 }).listen(8080);
 
 function getAllChirps (callback) {
-  fs.readFile("db.json", function (err, data) {
-      if (err) {
-        console.error(err); 
-        callback(err, null);
-      } else {
-        callback(null, JSON.stringify(JSON.parse(data.toString()).chirps, null, 4));
-      }
-  })
+  callback(null, JSON.stringify(data.chirps));
+}
+
+function registerUser () {
+  callback(null, " ???" );
 }

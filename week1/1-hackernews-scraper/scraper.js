@@ -1,25 +1,17 @@
-var express = require ('express'),
-	http = require('http'),
-	request = require('request'),
-	nodemailer = require('nodemailer'),
-    bodyParser = require('body-parser'),
+var request = require('request'),
     localStorage = require('node-persist'),
-    url = require("url");
+    utils = require("./utils"),
+    newArticlesCount = 0,
+    articlesDB;
 
-localStorage.initSync({
-  dir: "../../../persist",
-  stringify: function (obj) {
-	return JSON.stringify(obj, null, 4);
-  }
-});
-var articlesDB = localStorage.getItem("articles.json"),
-	newArticlesCount = 0;
+utils.initStorage(localStorage);
+articlesDB = localStorage.getItem("articles.json");
 
-function recurseCalls(count) {
-	if (count === 0) {
+function fetchRecursive(remaining) {
+	if (remaining === 0) {
 		console.log('Done! New articles count: ' + newArticlesCount);
 		if (newArticlesCount > 0) {
-			request.post("http://localhost:8010/newArticles", function (error, response, body) {
+			request.post("http://localhost:3000/newArticles", function (error, response, body) {
 				if (!error) {
 					console.log('Notifier sent e-mails. Fetching again in 10 seconds.');
 					setTimeout(getMaxItem, 10000);
@@ -32,70 +24,61 @@ function recurseCalls(count) {
 		
 		return;
 	}
-	getArticle(articlesDB.maxItem, count, "subscription");
+	getArticle(articlesDB.maxItem, remaining, "subscription");
 	articlesDB.maxItem++;
 }
 
-function getArticle(articleId, count, purpose) {
+function getArticle(articleId, remaining, purpose) {
 	articlesDB = localStorage.getItem("articles.json");
 	request("https://hacker-news.firebaseio.com/v0/item/" + articleId + ".json?print=pretty", function (error, response, body) {
 		var article = JSON.parse(body),
 			parentArticle, result;
 		console.log('Read article #' + article.id + ".");
+
+		result = {
+			id: article.id,
+			by: article.by,
+			type: article.type,
+			purpose: purpose
+		};
+
 		if (article.type === "story") {
-			result = {
-				id: article.id,
-				by: article.by,
-				title: article.title,
-				url: article.url,
-				type: article.type,
-				purpose: purpose
-			}
+			result.title = article.title;
+			result.url = article.url;
 			console.log(result);
+
 			articlesDB.data.push(result);
 			newArticlesCount++;
 			localStorage.setItem("articles.json", articlesDB);
-			recurseCalls(count - 1);
+			fetchRecursive(remaining - 1);
 		} else if (article.type === "comment") {
-			result = {
-				id: article.id,
-				by: article.by,
-				text: article.text,
-				type: article.type,
-				parent: article.parent,
-				purpose: purpose
-			}
+			result.text = article.text;
+			result.parent = article.parent;
 			console.log(result);
+
 			articlesDB.data.push(result);
 			newArticlesCount++;
 			localStorage.setItem("articles.json", articlesDB);
 			parentArticle = article.parent;
-			while (parentArticle && existsById(articlesDB.data, parentArticle.id)) {
+
+			while (parentArticle && utils.existsById(articlesDB.data, parentArticle.id)) {
+				//move up the parent tree locally
 				parentArticle = parentArticle.parent;
 			}
 			if (parentArticle) {
-				getArticle(parentArticle, count, "additional-info");
+				//parentArticle is not cached, fetch it from HackerNews
+				getArticle(parentArticle, remaining, "cache");
 			} else {
-				recurseCalls(count - 1);
+				fetchRecursive(remaining - 1);
 			}
 		}
 		
 	});
 }
 
-function existsById (articles, id) { //TODO: Move to utils module
-	return articles.some(function (article) {
-		return article.id === id;
-	});
-}
-
 function getMaxItem() {
-	localStorage.initSync({
-		dir: "../../../persist",
-		stringify: function (obj) {
-			return JSON.stringify(obj, null, 4);
-		}
-	});
+	utils.initStorage(localStorage);
+
 	request('https://hacker-news.firebaseio.com/v0/maxitem.json', function (error, response, body) {
 		if (!error) {
 			console.log("Fetched max item #" + body);
@@ -107,7 +90,7 @@ function getMaxItem() {
 			if (body > articlesDB.maxItem) {
 				console.log("Started fetching articles. Expected new articles length: " + (body - articlesDB.maxItem));
 				newArticlesCount = 0;
-				recurseCalls(body - articlesDB.maxItem);
+				fetchRecursive(body - articlesDB.maxItem);
 			} else {
 				setTimeout(getMaxItem, 10000);
 			}
@@ -118,4 +101,3 @@ function getMaxItem() {
 }
 
 getMaxItem();
-

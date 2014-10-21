@@ -5,7 +5,7 @@ var http = require("http"),
 	payload = "",
 	parser = new ArgumentParser({}),
 	pathMapping = {
-		"getall": "/all_chirps"
+		"getall": "/all_chirps",
 		"register": "/register"
 	},
 	methodMapping = {
@@ -21,9 +21,14 @@ parser.addArgument(["--getall"], {
 	constant: "all_chirps",
 	nargs: "?"
 });
+parser.addArgument(["--register"], {
+	constant: "register",
+	nargs: "?"
+});
 var args = parser.parseArgs(),
 	argsKeys = _.map(args, function (value, key) { return key; } );
-
+	argsKeys = _.filter(argsKeys)
+console.log(args);
 sendRequest(pathMapping[argsKeys[0]], methodMapping[argsKeys[0]], null, callbackMapping[argsKeys[0]]);
 
 function sendRequest(path, method, data, callback) {
@@ -43,14 +48,14 @@ function sendRequest(path, method, data, callback) {
 	});
 
 	if (method === "POST") {
-		req.write(data);
+		req.write("pesho");
 	}
 
 	req.end();
 }
 
 function getallCallback(payload) {
-	console.log(payload);
+	console.log(payload + "lell");
 }
 
 function registerCallback(data) {
