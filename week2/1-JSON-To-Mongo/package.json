@@ -1,0 +1,9 @@
+{
+  "name": "myproject",
+  "version": "1.0.0",
+  "description": "Converting JSON to Mongo",
+  "main": "json-to-mongo.js",
+  "dependencies": {
+    "mongodb": "~2.0"
+  }
+}
