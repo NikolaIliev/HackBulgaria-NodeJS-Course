@@ -17,15 +17,15 @@ function GraphBuilder(username, depth, db, collection) {
 	this.db = db;
 	this.collection = collection;
 
+	console.log('username: ' + username);
 	this.collection.insert({
 		_id: this.id,
 		username: username,
 		completed: false,
-		graph: ""
+		graph: null
 	}, function () {
 		self.buildGraph();
 	});
-	
 }
 
 GraphBuilder.prototype.buildGraph = function () { 
@@ -38,11 +38,15 @@ GraphBuilder.prototype.parseUsers = function (currentDepth) {
 	console.log("DEPTH : " + currentDepth);
 	if (currentDepth > this.depth) {
 		this.finishedBuildingGraph = true;
+		parsedUsers = [];
+		queuedUsers = [];
 		this.collection.update({
 			_id: this.id
 		}, {
-			completed: true,
-			graph: this.graph.toString()
+			$set: {
+				completed: true,
+				graph: this.graph
+			}
 		}, function (err, result) {
 			if (err) {
 				console.error(err);

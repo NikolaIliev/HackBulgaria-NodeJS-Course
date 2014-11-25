@@ -25,7 +25,37 @@ app.get("/graph/:graphId", function (req, res) {
 		}
 
 		if (result) {
-			res.end(result.graph.toString());
+			if (result.completed) {
+				res.end(result.graph.toString());	
+			} else {
+				res.end("This graph is still being built. Thank you for your patience!");
+			}
+		} else {
+			res.end("Graph with id: " + req.param("graphId") + " does not exist\n");
+		}
+	});
+});
+
+app.get("/graph/:graphId/:username", function (req, res) {
+	collection.findOne({
+		_id: req.param("graphId")
+	}, function (err, result) {
+		var first, second;
+		if (err) {
+			res.end(err);
+		}
+
+		if (result) {
+			if (result.completed) {
+				first = result.graph.nodeMapping[result.username].indexOf(req.param("username")) >= 0;
+				second = result.graph.nodeMapping[req.param("username")] && result.graph.nodeMapping[req.param("username")].indexOf(result.username) >= 0;
+
+				res.json({
+					"relation": (first && second ? "mutual" : (first ? "first" : (second ? "second" : "none")))
+				});
+			} else {
+				res.end("This graph is still being built. Thank you for your patience!");
+			}
 		} else {
 			res.end("Graph with id: " + req.param("graphId") + " does not exist\n");
 		}
