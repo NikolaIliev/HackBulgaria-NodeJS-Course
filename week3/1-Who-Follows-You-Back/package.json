@@ -1,0 +1,28 @@
+{
+  "name": "1-Who-Follows-You-Back",
+  "version": "0.0.0",
+  "description": "Social graph builder for GitHub",
+  "main": "github-fetcher.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "chai": "~1.9.2",
+    "body-parser": "~1.9.2",
+    "mongodb": "~1.4.19",
+    "node-uuid": "~1.4.1",
+    "express": "~4.10.1",
+    "async": "~0.9.0",
+    "request": "~2.47.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/NikolaIliev/HackBulgaria-NodeJS-Course/"
+  },
+  "author": "Nikola Iliev <nikola.iliev93@gmail.com>",
+  "license": "MIT"
+}
