@@ -9,7 +9,7 @@ var Q = require('q'),
 		[1/9, 1/9, 1/9],
 		[1/9, 1/9, 1/9]
 	],
-	maxChildProcesses = 4;
+	maxChildProcesses = 20;
 
 function Convoluter(imageData, kernel) {
 	this.deferred = Q.defer();
