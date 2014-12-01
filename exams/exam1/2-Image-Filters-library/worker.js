@@ -10,6 +10,7 @@ function flipKernel(kernel) {
 
 	return flippedKernel;
 }
+
 process.on('message', function (data) {
 	var origin = Math.floor(data.kernel.length / 2),
 		kernel = flipKernel(data.kernel),
@@ -17,14 +18,16 @@ process.on('message', function (data) {
 		offsetX = data.row - origin, 
 		offsetY, row, column, offsetRow, offsetColumn;
 
+		console.log('started working on row ' + data.row);
+
 	for (var imageColumn = 0; imageColumn < data.imageData[0].length; imageColumn++) {
 		resultRow[imageColumn] = 0;
 		offsetY = imageColumn - origin;
 
 		for (var kernelRow = 0; kernelRow < kernel.length; kernelRow++) {
 			for (var kernelColumn = 0; kernelColumn < kernel[0].length; kernelColumn++) {
-				offsetRow = kernelRow - offsetX;
-				offsetColumn = kernelColumn - offsetY;
+				offsetRow = data.row - origin + kernelRow;
+				offsetColumn = imageColumn - origin;
 				resultRow[imageColumn] += kernel[kernelRow][kernelColumn] * 
 					((offsetRow >= 0 && offsetColumn >= 0 && offsetRow < data.imageData.length && offsetColumn < data.imageData[0].length) ? data.imageData[offsetRow][offsetColumn] : 0);
 			}
@@ -35,4 +38,6 @@ process.on('message', function (data) {
 		row: data.row,
 		result: resultRow
 	});
+
+	process.disconnect();
 });

@@ -1,0 +1,23 @@
+{
+  "name": "2-Image-Filters-library",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "q": "~1.1.1",
+    "express": "~4.10.4",
+    "body-parser": "~1.9.3",
+    "underscore": "~1.7.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/NikolaIliev/HackBulgaria-NodeJS-Course/"
+  },
+  "author": "",
+  "license": "MIT"
+}

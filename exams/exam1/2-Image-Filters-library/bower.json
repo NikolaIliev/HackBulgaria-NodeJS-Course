@@ -1,0 +1,14 @@
+{
+  "name": "2-Image-Filters-library",
+  "main": "index.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/NikolaIliev/HackBulgaria-NodeJS-Course",
+  "authors": [
+    "Nikola Iliev <nikola.iliev93@gmail.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "requirejs": "~2.1.15",
+    "jquery": "~2.1.1"
+  }
+}

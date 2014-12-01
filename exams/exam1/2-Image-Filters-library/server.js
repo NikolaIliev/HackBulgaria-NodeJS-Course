@@ -1,5 +1,6 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
+    _ = require('underscore'),
     convolution = require('./convolution'),
     app = express();
 
@@ -41,11 +42,14 @@ app.post('/applyFilter', function (req, res) {
     }
     convolution.rgb.edgeDetection(data).then(function (result) {
         var imageData = [];
-        for (var i = 0; i < result[0].length; i+=4) {
-            imageData[i] = result[0][i];
-            imageData[i + 1] = result[1][i];
-            imageData[i + 2] = result[2][i];
-            imageData[i + 3] = 255;
+        result[0] = _.flatten(result[0]);
+        result[1] = _.flatten(result[1]);
+        result[2] = _.flatten(result[2]);
+        for (var i = 0, j = 0; i < result[0].length; i++) {
+            imageData[j++] = result[0][i];
+            imageData[j++] = result[1][i];
+            imageData[j++] = result[2][i];
+            imageData[j++] = 255;
         }
         res.json(imageData);
     });

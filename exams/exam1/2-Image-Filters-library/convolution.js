@@ -9,7 +9,7 @@ var Q = require('q'),
 		[1/9, 1/9, 1/9],
 		[1/9, 1/9, 1/9]
 	],
-	maxChildProcesses = 20;
+	maxChildProcesses = 4;
 
 function Convoluter(imageData, kernel) {
 	this.deferred = Q.defer();
@@ -58,7 +58,7 @@ Convoluter.prototype.onProcessFinish = function (data) {
 	this.inProgressRows--;
 
 	this.result[data.row] = data.result;
-	console.log(this.finishedRows + "  " + this.allRows);
+	//console.log(this.finishedRows + "  " + this.allRows);
 	if (this.finishedRows === this.allRows) {
 		this.deferred.resolve(this.result);
 	} else {
